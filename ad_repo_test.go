@@ -39,6 +39,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestAdRepoInsert(t *testing.T) {
+	t.Parallel()
 	db := openDB(t)
 	repo := dts.NewAdRepository(db)
 
@@ -64,6 +65,7 @@ func TestAdRepoInsert(t *testing.T) {
 }
 
 func TestAdRepoGet(t *testing.T) {
+	t.Parallel()
 	db := openDB(t)
 	repo := dts.NewAdRepository(db)
 
@@ -91,6 +93,7 @@ func TestAdRepoGet(t *testing.T) {
 }
 
 func TestAdRepoFindAll(t *testing.T) {
+	t.Parallel()
 	db := openDB(t)
 	repo := dts.NewAdRepository(db)
 
