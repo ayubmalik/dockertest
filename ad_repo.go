@@ -7,13 +7,14 @@ import (
 	"github.com/google/uuid"
 )
 
+// AdRepository is a repository for ads.
 type AdRepository interface {
 	Insert(ad Ad) error
-	Delete(id string) error
 	Get(id uuid.UUID) (Ad, error)
-	FindByStartDate(start time.Time) []Ad
+	FindAll() []Ad
 }
 
+// NewAdRepository returns a concrete repository
 func NewAdRepository(db *sql.DB) AdRepository {
 	return repo{
 		db: db,
@@ -24,8 +25,10 @@ type repo struct {
 	db *sql.DB
 }
 
+var _ AdRepository = (*repo)(nil)
+
 func (r repo) Insert(ad Ad) error {
-	sql := `INSERT INTO ad (id, content, start_at, end_at, created) 
+	sql := `INSERT INTO ad (id, content, start_at, end_at, created)
 			VALUES ($1, $2, $3, $4, $5)`
 
 	_, err := r.db.Exec(
@@ -39,14 +42,41 @@ func (r repo) Insert(ad Ad) error {
 	return err
 }
 
-func (r repo) Delete(id string) error {
-	panic("implement me")
-}
-
 func (r repo) Get(id uuid.UUID) (Ad, error) {
-	panic("implement me")
+	sql := `SELECT id, content, start_at, end_at, created
+					FROM ad
+					WHERE id = $1`
+
+	ad := Ad{}
+	row := r.db.QueryRow(sql, id)
+
+	err := row.Scan(
+		&ad.ID,
+		&ad.Content,
+		&ad.StartAt,
+		&ad.EndAt,
+		&ad.Created,
+	)
+	return ad, err
 }
 
-func (r repo) FindByStartDate(start time.Time) []Ad {
-	panic("implement me")
+func (r repo) FindAll() []Ad {
+	sql := `SELECT id, content, start_at, end_at, created FROM ad`
+	rows, _ := r.db.Query(sql)
+	defer rows.Close()
+
+	ads := make([]Ad, 0)
+	for rows.Next() {
+		ad := Ad{}
+		rows.Scan(
+			&ad.ID,
+			&ad.Content,
+			&ad.StartAt,
+			&ad.EndAt,
+			&ad.Created,
+		)
+		ads = append(ads, ad)
+	}
+
+	return ads
 }

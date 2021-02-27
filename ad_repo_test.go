@@ -2,6 +2,7 @@ package dockertest_test
 
 import (
 	"database/sql"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -13,6 +14,9 @@ import (
 
 	"github.com/ayubmalik/dockertest"
 )
+
+// use docketest by passing -dt flag e.g. go test -dt
+var dt = flag.Bool("dt", false, "Use dockertest container rather than external postgres")
 
 var db *sql.DB
 
@@ -30,7 +34,14 @@ func OpenDB(host string, port, user, pwd, dbName string) (*sql.DB, error) {
 }
 
 func TestMain(m *testing.M) {
-	_db, err := OpenDB("localhost", "5432", "postgres", "", "dockertest")
+	flag.Parse()
+	if *dt {
+		fmt.Println("Using docker test container")
+	} else {
+		fmt.Println("Using external postgres")
+	}
+
+	_db, err := OpenDB("localhost", "5432", "postgres", "password", "dockertest")
 	if err != nil {
 		panic(err)
 	}
@@ -40,6 +51,7 @@ func TestMain(m *testing.M) {
 }
 
 func InitDB(t *testing.T) {
+
 	f, err := os.Open("migrations/001-create-db.sql")
 	must(t, err)
 	defer f.Close()
@@ -74,6 +86,55 @@ func TestAdRepoInsert(t *testing.T) {
 	err = row.Scan(&id, &content, &startAt, &endAt)
 	must(t, err)
 	assert(t, id, ad.ID)
+}
+
+func TestAdRepoGet(t *testing.T) {
+	InitDB(t)
+	repo := dockertest.NewAdRepository(db)
+
+	id := uuid.New()
+	now := time.Now()
+
+	_, err := db.Exec(
+		"insert into ad(id, content, start_at, end_at, created) values($1, $2, $3, $4, $5)",
+		id,
+		"hello",
+		now,
+		now,
+		now,
+	)
+	must(t, err)
+
+	ad, err := repo.Get(id)
+	must(t, err)
+	assert(t, ad.ID, id)
+	assert(t, ad.Content, "hello")
+	assert(t, ad.StartAt.Format(time.RFC3339), now.Format(time.RFC3339))
+	assert(t, ad.EndAt.Format(time.RFC3339), now.Format(time.RFC3339))
+	assert(t, ad.Created.Format(time.RFC3339), now.Format(time.RFC3339))
+
+}
+
+func TestAdRepoFindAll(t *testing.T) {
+	InitDB(t)
+	repo := dockertest.NewAdRepository(db)
+
+	for i := 0; i < 100; i++ {
+		id := uuid.New()
+		now := time.Now()
+		_, err := db.Exec(
+			"insert into ad(id, content, start_at, end_at, created) values($1, $2, $3, $4, $5)",
+			id,
+			"hello",
+			now,
+			now,
+			now,
+		)
+		must(t, err)
+	}
+
+	ads := repo.FindAll()
+	assert(t, len(ads), 100)
 }
 
 func assert(t *testing.T, got, want interface{}) {
