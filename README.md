@@ -9,7 +9,7 @@ You can run tests with or _without_ using dockertest. This is useful for compari
 
 ### Run tests _without_ Dockertest
 
-You will need to have postgresql up and running locally before running `go test`. The database named `dockertest` must exist.
+You will need to have postgresql up and running locally before running `go test`. The database named `dockertest` must exist. As the tests run against the _same_ DB instance can't really run them in parallel, hence the `test.parallel` param is set to 1.
 
 ```
 go test -test.parallel 1
@@ -17,7 +17,7 @@ go test -test.parallel 1
 
 ### Run tests _with_ Dockertest
 
-You only need to have docker up and running.
+You only need to have docker up and running. The first time the tests are run, the docker postgresql image will be pulled, so may be slower.
 
 ```
 go test -dt test.parallel 4
