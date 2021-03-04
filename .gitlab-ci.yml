@@ -10,13 +10,6 @@ stages:
   - build
   - deploy
 
-lint:
-  stage: test
-  script:
-    - go env | sort
-    - go fmt $(go list ./...)
-    - go vet $(go list ./...)
-
 test:
   stage: test
   services:
@@ -26,6 +19,9 @@ test:
     DOCKER_DRIVER: overlay2
     DOCKERTESTSPIKE_HOST: docker
   script:
+    - go env | sort
+    - go fmt $(go list ./...)
+    - go vet $(go list ./...)
     - go test -race $(go list ./...)
 
 compile:
