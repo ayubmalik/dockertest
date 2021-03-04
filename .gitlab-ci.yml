@@ -13,6 +13,7 @@ stages:
 lint:
   stage: test
   script:
+    - go env | sort
     - go fmt $(go list ./...)
     - go vet $(go list ./...)
 
