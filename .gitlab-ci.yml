@@ -15,14 +15,15 @@ lint:
   script:
     - go fmt $(go list ./...)
     - go vet $(go list ./...)
+
 test:
   stage: test
-   services:
+  services:
     - docker:dind
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_DRIVER: overlay2
-    DT_APP_HOST: docker
+    DOCKERTESTSPIKE_HOST: docker
   script:
     - go test -race $(go list ./...)
 

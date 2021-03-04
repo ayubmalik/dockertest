@@ -162,7 +162,11 @@ func openDB(t *testing.T) *sql.DB {
 }
 
 func dsn(port string) string {
-	return fmt.Sprintf("host=localhost port=%s user=postgres password=password dbname=dockertest sslmode=disable", port)
+	host := os.Getenv("DOCKERTESTSPIKE_HOST")
+	if host == "" {
+		host = "localhost"
+	}
+	return fmt.Sprintf("host=%s port=%s user=postgres password=password dbname=dockertest sslmode=disable", host, port)
 }
 
 func dbUp(t *testing.T, db *sql.DB) {
