@@ -1,9 +1,8 @@
 package dockertestspike
 
 import (
-	"time"
-
 	"github.com/google/uuid"
+	"time"
 )
 
 type Ad struct {
