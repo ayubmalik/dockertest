@@ -20,10 +20,8 @@ test:
     DOCKERTESTSPIKE_HOST: docker
   script:
     - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.37.1
-    - echo $PATH
-    - golangci-lint --version
     - go fmt $(go list ./...)
-    - go vet $(go list ./...)
+    - golangci-lint run $(go list ./...)
     - go test -race $(go list ./...)
 
 compile:
