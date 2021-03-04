@@ -17,6 +17,12 @@ lint:
     - go vet $(go list ./...)
 test:
   stage: test
+   services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+    DT_APP_HOST: docker
   script:
     - go test -race $(go list ./...)
 
