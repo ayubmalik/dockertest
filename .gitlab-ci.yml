@@ -6,18 +6,16 @@ variables:
   REPO_NAME: gitlab.com/ayubmalik/dockertestspike
 
 stages:
-  - lint
   - test
   - build
   - deploy
 
 lint:
-  stage: lint
+  stage: test
   script:
     - go fmt $(go list ./...)
     - go vet $(go list ./...)
-
-format:
+test:
   stage: test
   script:
     - go test -race $(go list ./...)
