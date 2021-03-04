@@ -1,6 +1,6 @@
 workflow:
   rules:
-    - if: '$CI_COMMIT_BRANCH =~ "main|feat/.*"'
+    - if: '$CI_COMMIT_BRANCH =~ "main|staging|bug/.*|feat/.*"'
 
 image: golang:1.16
 
